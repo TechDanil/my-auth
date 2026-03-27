@@ -7,3 +7,75 @@ datasource db {
   provider = "postgresql"
   url = env("POSTGRES_URI")
 }
+
+enum Role {
+  REGULAR
+  ADMIN
+}
+
+enum AuthMethod {
+  CREDENTIALS
+  GOOGLE 
+  YANDEX
+}
+
+enum TokenType {
+  VERIFICATION
+  TWO_FACTOR
+  PASSWORD_RESET
+}
+
+model User { 
+  id String @id @default(uuid())
+
+  email String @unique
+  password String 
+
+  displayName String
+  avatar String? 
+
+  isTwoFactorEnabled Boolean @default(false) @map("is_two_factor_enabled") 
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+
+  role Role @default(REGULAR)
+  accounts Account[]
+
+  createdAt DateTime @default(now()) @map("created_at") 
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Account {
+  id String @id @default(uuid())
+
+  type String
+  provider String
+
+  refreshToken String? @map("refresh_token")
+  accessToken String? @map("access_token")
+
+  expiresAt Int @map("expires_at")
+  user User? @relation(fields: [userId], references: [id])
+  userId String? @map("user_id  ")
+
+  createdAt DateTime @default(now()) @map("created_at") 
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("accounts") 
+}
+
+model Token {
+  id String @id @default(uuid())
+
+  email String
+  token String @unique
+  type TokenType
+
+  expiresIn DateTime @map("expires_in") 
+
+  createdAt DateTime @default(now()) @map("created_at") 
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tokens")
+}
