@@ -27,7 +27,7 @@ export class RegisterDto {
   @MinLength(6, {
     message: 'Password confirmation  must be at least 6 characters long',
   })
-  @Validate(IsPasswo  rdMatchingConstraint, {
+   @Validate(IsPasswordMatchingConstraint, {
     message: 'Passwords mismatch',
   })
   passwordConfirmation: string;
