@@ -1,6 +1,6 @@
-import { IS_DEV_ENV } from "@/libs/common/utils/is-dev.util";
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { IS_DEV_ENV } from '@/libs/common/utils/is-dev.util';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -10,4 +10,4 @@ import { ConfigModule } from "@nestjs/config";
     }),
   ],
 })
-export class AppModule {}
+export class AppModule { }
