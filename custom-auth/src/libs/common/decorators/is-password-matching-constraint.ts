@@ -1,11 +1,11 @@
-import { RegisterDto } from '@/auth/dto/register.dto';
+import { RegisterDto } from "@/auth/dto/register.dto";
 import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from 'class-validator';
+} from "class-validator";
 
-@ValidatorConstraint({ name: 'isPasswordMatching', async: false })
+@ValidatorConstraint({ name: "isPasswordMatching", async: false })
 export class IsPasswordMatchingConstraint implements ValidatorConstraintInterface {
   public validate(passwordConfirmation: string, args: ValidationArguments) {
     const dto = args.object as RegisterDto;
@@ -13,6 +13,6 @@ export class IsPasswordMatchingConstraint implements ValidatorConstraintInterfac
   }
 
   public defaultMessage(validationArguments?: ValidationArguments): string {
-    return 'Passwords mismatch';
+    return "Passwords mismatch";
   }
 }

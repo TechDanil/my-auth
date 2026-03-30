@@ -1,24 +1,33 @@
 import { NestFactory } from "@nestjs/core";
 import { ConfigService } from "@nestjs/config";
 import { ValidationPipe } from "@nestjs/common";
-import { ms, StringValue } from "@/libs/common/utils/ms.util";
+import { ms, StringValue } from "@/libs/utils/ms.util";
+import { parseBoolean } from "@/libs/utils/parse-boolean.util";
 
 import { RedisStore } from "connect-redis";
-import IORedis from "ioredis"; 
+import { createClient } from "redis";
 
 import cookieParser from "cookie-parser";
 import session from "express-session";
 
 import { AppModule } from "./app.module";
-import { parseBoolean } from "@/libs/common/utils/parse-boolean.util";
+
+const redisUri = (process.env.REDIS_URI ?? "").replace(
+  /\$\{(\w+)\}/g,
+  (_, key: string) => process.env[key],
+);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = app.get(ConfigService);
-  const redis = new IORedis(config.getOrThrow<string>("REDIS_URI"));
+  const redis = createClient({
+    url: redisUri,
+  });
 
-  app.use(cookieParser(config.getOrThrow<string>("COOKIES_SECRET")));
+  await redis.connect();
+
+  app.use(cookieParser(config.getOrThrow<string>("COOKIE_SECRET")));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -29,7 +38,7 @@ async function bootstrap() {
   app.use(
     session({
       secret: config.getOrThrow<string>("SESSION_SECRET"),
-      name: config.getOrThrow<string>("SESSIO N_NAME"),
+      name: config.getOrThrow<string>("SESSION_NAME"),
       resave: true,
       saveUninitialized: false,
       cookie: {
@@ -37,11 +46,14 @@ async function bootstrap() {
         maxAge: ms(config.getOrThrow<StringValue>("SESSION_MAX_AGE")),
         httpOnly: parseBoolean(config.getOrThrow<string>("SESSION_HTTP_ONLY")),
         secure: parseBoolean(config.getOrThrow<string>("SESSION_SECURE")),
-        sameSite: "lax"
+        sameSite: "lax",
       },
-      redis: new RedisStore({ client: redis, prefix: config.getOrThrow<string>("SESSION_PREFIX") }),
-    })
-  )
+      store: new RedisStore({
+        client: redis,
+        prefix: config.getOrThrow<string>("SESSION_PREFIX"),
+      }),
+    }),
+  );
 
   app.enableCors({
     origin: config.getOrThrow<string>("ALLOWED_ORIGIN"),

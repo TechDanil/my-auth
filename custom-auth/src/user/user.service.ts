@@ -1,8 +1,8 @@
-import { AuthMethod } from './../../prisma/__generated__/enums';
-import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { AuthMethod } from "./../../prisma/__generated__/enums";
+import { PrismaService } from "@/prisma/prisma.service";
+import { Injectable, NotFoundException } from "@nestjs/common";
 
-import { hash } from 'argon2';
+import { hash } from "argon2";
 
 @Injectable()
 export class UserService {
@@ -21,7 +21,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     return user;
@@ -49,7 +49,7 @@ export class UserService {
     const user = await this.#prisma.user.create({
       data: {
         email,
-        password: password ? await hash(password) : '',
+        password: password ? await hash(password) : "",
         displayName,
         avatar,
         method,
