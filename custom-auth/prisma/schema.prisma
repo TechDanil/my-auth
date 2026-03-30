@@ -36,6 +36,8 @@ model User {
   isTwoFactorEnabled Boolean @default(false) @map("is_two_factor_enabled") 
   isEmailVerified Boolean @default(false) @map("is_email_verified")
 
+  method AuthMethod @default(CREDENTIALS)
+
   role Role @default(REGULAR)
   accounts Account[]
 
