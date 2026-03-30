@@ -1,7 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { ConfigService } from "@nestjs/config";
 import { ValidationPipe } from "@nestjs/common";
-import { resolveEnvTemplate } from "@/config/resolve-env-template.util";
+import { resolveEnvTemplate } from "@/libs/utils/resolve-env-template.util";
 import { ms, StringValue } from "@/libs/utils/ms.util";
 import { parseBoolean } from "@/libs/utils/parse-boolean.util";
 
