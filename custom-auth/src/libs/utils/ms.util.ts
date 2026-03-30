@@ -6,37 +6,37 @@ const WEEK = DAY * 7;
 const YEAR = DAY * 365;
 
 type Unit =
-  | 'Years'
-  | 'Year'
-  | 'Yrs'
-  | 'Yr'
-  | 'Y'
-  | 'Weeks'
-  | 'Week'
-  | 'W'
-  | 'Days'
-  | 'Day'
-  | 'D'
-  | 'Hours'
-  | 'Hour'
-  | 'Hrs'
-  | 'Hr'
-  | 'H'
-  | 'Minutes'
-  | 'Minute'
-  | 'Mins'
-  | 'Min'
-  | 'M'
-  | 'Seconds'
-  | 'Second'
-  | 'Secs'
-  | 'Sec'
-  | 'S'
-  | 'Milliseconds'
-  | 'Millisecond'
-  | 'Msecs'
-  | 'Msec'
-  | 'Ms';
+  | "Years"
+  | "Year"
+  | "Yrs"
+  | "Yr"
+  | "Y"
+  | "Weeks"
+  | "Week"
+  | "W"
+  | "Days"
+  | "Day"
+  | "D"
+  | "Hours"
+  | "Hour"
+  | "Hrs"
+  | "Hr"
+  | "H"
+  | "Minutes"
+  | "Minute"
+  | "Mins"
+  | "Min"
+  | "M"
+  | "Seconds"
+  | "Second"
+  | "Secs"
+  | "Sec"
+  | "S"
+  | "Milliseconds"
+  | "Millisecond"
+  | "Msecs"
+  | "Msec"
+  | "Ms";
 
 type UnitAnyCase = Unit | Uppercase<Unit> | Lowercase<Unit>;
 
@@ -47,12 +47,12 @@ export type StringValue =
 
 export const ms = (string: StringValue) => {
   if (
-    typeof string !== 'string' ||
+    typeof string !== "string" ||
     string.length === 0 ||
     string.length > 100
   ) {
     throw new Error(
-      'Value provided to ms() must be a string with length between 1 and 99.',
+      "Value provided to ms() must be a string with length between 1 and 99.",
     );
   }
 
@@ -66,46 +66,46 @@ export const ms = (string: StringValue) => {
   if (!groups) return NaN;
 
   const parsedValue = parseFloat(groups.value);
-  const type = (groups.type || 'ms').toLowerCase();
+  const type = (groups.type || "ms").toLowerCase();
 
   switch (type) {
-    case 'years':
-    case 'year':
-    case 'yrs':
-    case 'yr':
-    case 'y':
+    case "years":
+    case "year":
+    case "yrs":
+    case "yr":
+    case "y":
       return parsedValue * YEAR;
-    case 'weeks':
-    case 'week':
-    case 'w':
+    case "weeks":
+    case "week":
+    case "w":
       return parsedValue * WEEK;
-    case 'days':
-    case 'day':
-    case 'd':
+    case "days":
+    case "day":
+    case "d":
       return parsedValue * DAY;
-    case 'hours':
-    case 'hour':
-    case 'hrs':
-    case 'hr':
-    case 'h':
+    case "hours":
+    case "hour":
+    case "hrs":
+    case "hr":
+    case "h":
       return parsedValue * HOUR;
-    case 'minutes':
-    case 'minute':
-    case 'mins':
-    case 'min':
-    case 'm':
+    case "minutes":
+    case "minute":
+    case "mins":
+    case "min":
+    case "m":
       return parsedValue * MINUTES;
-    case 'seconds':
-    case 'second':
-    case 'secs':
-    case 'sec':
-    case 's':
+    case "seconds":
+    case "second":
+    case "secs":
+    case "sec":
+    case "s":
       return parsedValue * SECONDS;
-    case 'milliseconds':
-    case 'millisecond':
-    case 'msecs':
-    case 'msec':
-    case 'ms':
+    case "milliseconds":
+    case "millisecond":
+    case "msecs":
+    case "msec":
+    case "ms":
       return SECONDS;
     default:
       throw new Error(`Invalid time string: ${string}`);
