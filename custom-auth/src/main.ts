@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { ConfigService } from "@nestjs/config";
 import { ValidationPipe } from "@nestjs/common";
+import { resolveEnvTemplate } from "@/config/resolve-env-template.util";
 import { ms, StringValue } from "@/libs/utils/ms.util";
 import { parseBoolean } from "@/libs/utils/parse-boolean.util";
 
@@ -12,10 +13,7 @@ import session from "express-session";
 
 import { AppModule } from "./app.module";
 
-const redisUri = (process.env.REDIS_URI ?? "").replace(
-  /\$\{(\w+)\}/g,
-  (_, key: string) => process.env[key],
-);
+const redisUri = resolveEnvTemplate(process.env.REDIS_URI);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

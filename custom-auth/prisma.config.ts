@@ -1,16 +1,14 @@
-import 'dotenv/config';
-import type { PrismaConfig } from 'prisma';
+import "dotenv/config";
+import type { PrismaConfig } from "prisma";
+import { resolveEnvTemplate } from "./src/config/resolve-env-template.util";
 
-const postgresUri = (process.env.POSTGRES_URI ?? '').replace(
-  /\$\{(\w+)\}/g,
-  (_, key: string) => process.env[key],
-);
+const postgresUri = resolveEnvTemplate(process.env.POSTGRES_URI);
 
 export default {
-  schema: 'prisma/schema.prisma',
+  schema: "prisma/schema.prisma",
   migrations: {
-    path: './migrations',
-    seed: 'tsx ./seed.ts',
+    path: "./migrations",
+    seed: "tsx ./seed.ts",
   },
   datasource: {
     url: postgresUri,

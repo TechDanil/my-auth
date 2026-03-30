@@ -1,11 +1,9 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { PrismaClient } from "@prisma/__generated__/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { resolveEnvTemplate } from "@/config/resolve-env-template.util";
 
-const postgresUri = (process.env.POSTGRES_URI ?? "").replace(
-  /\$\{(\w+)\}/g,
-  (_, key: string) => process.env[key],
-);
+const postgresUri = resolveEnvTemplate(process.env.POSTGRES_URI);
 
 @Injectable()
 export class PrismaService
