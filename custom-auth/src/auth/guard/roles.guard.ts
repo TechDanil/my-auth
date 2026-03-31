@@ -11,7 +11,7 @@ import { Role } from "@prisma/__generated__/client";
 import { ROLES_KEY } from "@/auth/decorators/roles.decorator";
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class RolesGuard implements CanActivate {
   #reflector: Reflector;
 
   constructor(reflector: Reflector) {
