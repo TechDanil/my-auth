@@ -3,7 +3,7 @@ import { Role } from "@prisma/__generated__/client";
 import { applyDecorators, UseGuards } from "@nestjs/common";
 import { AuthGuard, RolesGuard } from "../guard";
 
-export const Authorization =  (...roles: Role[]) => {
+export const Authorization = (...roles: Role[]) => {
   if (roles.length > 0) {
     return applyDecorators(Roles(...roles), UseGuards(AuthGuard, RolesGuard));
   }
