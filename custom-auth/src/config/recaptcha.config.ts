@@ -15,6 +15,6 @@ export const getRecaptchaConfig = (
     }
 
     return recaptchaHeader;
-  }, 
+  },
   skipIf: isDev(config),
 });

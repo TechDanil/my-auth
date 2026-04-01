@@ -1,4 +1,4 @@
-export type BaseProviderOptions = {
+export type TypeBaseProviderOptions = {
   name: string;
   authorizeUrl: string;
   accessUrl: string;
