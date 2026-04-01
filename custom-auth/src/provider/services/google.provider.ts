@@ -1,5 +1,6 @@
 import { BaseOauthService } from "./base-oauth.service";
 import type { TypeProviderOptions } from "./types/provider-options.type";
+import type { TypeUserInfo } from "./types/user-info.type";
 
 interface GoogleProfile extends Record<string, unknown> {
   aud: string;
