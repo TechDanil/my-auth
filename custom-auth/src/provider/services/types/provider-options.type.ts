@@ -1,6 +1,6 @@
-import type { BaseProviderOptions } from "./base-provider.options.types";
+import type { TypeBaseProviderOptions } from "./base-provider.options.types";
 
 export type TypeProviderOptions = Pick<
-  BaseProviderOptions,
+  TypeBaseProviderOptions,
   "scopes" | "clientId" | "clientSecret"
 >;
