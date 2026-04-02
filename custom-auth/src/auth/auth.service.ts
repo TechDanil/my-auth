@@ -11,15 +11,26 @@ import { UserService } from "@/user/user.service";
 import { AuthMethod, User } from "@prisma/__generated__/client";
 import { verify } from "argon2";
 import { ConfigService } from "@nestjs/config";
+import { ProviderService } from "@/provider/provider.service";
+import { PrismaService } from "@/prisma/prisma.service";
 
 @Injectable()
 export class AuthService {
-  #userService: UserService;
-  #config: ConfigService;
+  readonly #userService: UserService;
+  readonly #config: ConfigService;
+  readonly #providerService: ProviderService;
+  readonly #prismaService: PrismaService;
 
-  constructor(userService: UserService, config: ConfigService) {
+  constructor(
+    userService: UserService,
+    config: ConfigService,
+    providerService: ProviderService,
+    prismaService: PrismaService,
+  ) {
     this.#userService = userService;
     this.#config = config;
+    this.#providerService = providerService;
+    this.#prismaService = prismaService;
   }
 
   public async register(request: Request, dto: RegisterDto) {
@@ -57,6 +68,54 @@ export class AuthService {
     }
 
     return this.saveSession(request, user);
+  }
+
+  public async extractProfileFromCode(
+    req: Request,
+    provider: string,
+    code: string,
+  ) {
+    const providerInstance = this.#providerService.findByService(provider);
+    const profile = await providerInstance.findUserByCode(code);
+
+    const account = await this.#prismaService.account.findFirst({
+      where: {
+        id: profile.id,
+        provider: profile.provider,
+      },
+    });
+
+    let user = account?.userId
+      ? await this.#userService.findById(account.userId)
+      : null;
+
+    if (user) {
+      return this.saveSession(req, user);
+    }
+
+    user = await this.#userService.create(
+      profile.email,
+      "",
+      profile.name,
+      profile.avatar,
+      AuthMethod[profile.provider.toUpperCase()],
+      true,
+    );
+
+    if (!account) {
+      await this.#prismaService.account.create({
+        data: {
+          userId: profile.id,
+          type: "oauth",
+          provider: profile.provider,
+          accessToken: profile.accessToken,
+          refreshToken: profile.refreshToken,
+          expiresAt: profile.expiresAt,
+        },
+      });
+    }
+
+    return this.saveSession(req, user);
   }
 
   public async logout(request: Request, response: Response): Promise<void> {

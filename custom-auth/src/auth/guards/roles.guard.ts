@@ -12,7 +12,7 @@ import { ROLES_KEY } from "@/auth/decorators/roles.decorator";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  #reflector: Reflector;
+  readonly #reflector: Reflector;
 
   constructor(reflector: Reflector) {
     this.#reflector = reflector;
