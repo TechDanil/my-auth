@@ -10,7 +10,7 @@ export const getMailerConfig = (config: ConfigService): MailerOptions => ({
     auth: {
       user: config.getOrThrow<string>("MAIL_LOGIN"),
       pass: config.getOrThrow<string>("MAIL_PASSWORD"),
-     },
+    },
   },
   defaults: {
     from: `"Custom Auth" <${config.getOrThrow<string>("MAIL_LOGIN")}>`,
