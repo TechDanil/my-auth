@@ -37,8 +37,8 @@ export class YandexProvider extends BaseOauthService {
 
   protected extractUserInfo(data: YandexProfile): TypeUserInfo {
     return super.extractUserInfo({
-      email: data.emails[0],
-      name: data.displayName,
+      email: data.defaultEmail ?? data.emails?.[0],
+      name: data.displayName ?? data.realName ?? data.login,
       avatar: data.defaultAvatarId
         ? `https://avatars.yandex.net/get-yapic/${data.defaultAvatarId}/islands-200`
         : undefined,

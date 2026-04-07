@@ -96,7 +96,7 @@ export class AuthService {
     user = await this.#userService.create(
       profile.email,
       "",
-      profile.name,
+      profile.name ?? profile.email,
       profile.avatar,
       AuthMethod[profile.provider.toUpperCase()],
       true,

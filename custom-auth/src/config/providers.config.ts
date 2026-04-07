@@ -2,11 +2,12 @@ import { TypeProvideOptions } from "@/provider/provider.constants";
 import { GoogleProvider } from "@/provider/services/google.provider";
 import { YandexProvider } from "@/provider/services/yandex.provider";
 import { ConfigService } from "@nestjs/config";
+import { resolveEnvTemplate } from "@/libs/utils/resolve-env-template.util";
 
 export const getProvidersConfig = (
   config: ConfigService,
 ): TypeProvideOptions => ({
-  baseUrl: config.getOrThrow<string>("APPLICATION_URL"),
+  baseUrl: resolveEnvTemplate(config.getOrThrow<string>("APPLICATION_URL")),
   services: [
     new GoogleProvider({
       clientId: config.getOrThrow<string>("GOOGLE_CLIENT_ID"),

@@ -44,34 +44,34 @@ export abstract class BaseOauthService {
       },
     });
 
-    const tokenResponse = (await tokenRequest.json()) as {
-      accessToken?: string;
-      refreshToken?: string;
-      expiresIn?: number;
-      expiresAt?: number;
-    };
-
     if (!tokenRequest.ok) {
       throw new BadRequestException(
-        `Failed to get a user with ${this.#options.profileUrl}. Please, check if the token is valid.`,
+        `Failed to exchange code for token: ${tokenRequest.statusText}`,
       );
     }
 
-    if (!tokenResponse.accessToken) {
+    const tokens = (await tokenRequest.json()) as {
+      access_token?: string;
+      refresh_token?: string;
+      expires_in?: number;
+      error?: string;
+    };
+
+    if (!tokens.access_token) {
       throw new BadRequestException(
-        `Failed to get a user with ${this.#options.profileUrl}. Please, check if the token is valid.`,
+        `Access token missing in response from ${this.#options.accessUrl}.`,
       );
     }
 
     const userRequest = await fetch(this.#options.profileUrl, {
       headers: {
-        Authorization: `Bearer ${tokenResponse.accessToken}`,
+        Authorization: `Bearer ${tokens.access_token}`,
       },
     });
 
     if (!userRequest.ok) {
       throw new BadRequestException(
-        `Failed to get a user with ${this.#options.profileUrl}. Please, check if the token is valid.`,
+        `Failed to fetch user profile from ${this.#options.profileUrl}.`,
       );
     }
 
@@ -81,9 +81,9 @@ export abstract class BaseOauthService {
 
     return {
       ...user,
-      accessToken: tokenResponse.accessToken,
-      refreshToken: tokenResponse.refreshToken,
-      expiresAt: tokenResponse.expiresIn || tokenResponse.expiresAt,
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      expiresAt: tokens.expires_in,
       provider: this.#options.name,
     };
   }
