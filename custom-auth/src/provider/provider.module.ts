@@ -32,6 +32,7 @@ export class ProviderModule {
           useFactory: options.useFactory,
           inject: options.inject,
         },
+        ProviderService,
       ],
       exports: [ProviderService],
     };

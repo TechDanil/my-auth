@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { getRecaptchaConfig } from "@/config/recaptcha.config";
 import { ProviderModule } from "@/provider/provider.module";
 import { getProvidersConfig } from "@/config/providers.config";
+import { AuthProviderGuard } from "./guards/provider.guard";
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { getProvidersConfig } from "@/config/providers.config";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService],
+  providers: [AuthService, UserService, AuthProviderGuard],
 })
-export class AuthModule { }
+export class AuthModule {}
