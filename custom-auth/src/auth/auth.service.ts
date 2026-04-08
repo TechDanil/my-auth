@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
-import { LoginDto, RegisterDto } from "./dto";
 import { UserService } from "@/user/user.service";
 import { AuthMethod, User } from "@prisma/__generated__/client";
 import { verify } from "argon2";
@@ -14,23 +13,29 @@ import { ConfigService } from "@nestjs/config";
 import { ProviderService } from "@/provider/provider.service";
 import { PrismaService } from "@/prisma/prisma.service";
 
+import { LoginDto, RegisterDto } from "./dto";
+import { EmailConfirmationService } from "./email-confirmation/email-confirmation.service";
+
 @Injectable()
 export class AuthService {
   readonly #userService: UserService;
   readonly #config: ConfigService;
   readonly #providerService: ProviderService;
   readonly #prismaService: PrismaService;
+  readonly #emailConfirmationService: EmailConfirmationService;
 
   constructor(
     userService: UserService,
     config: ConfigService,
     providerService: ProviderService,
     prismaService: PrismaService,
+    emailConfirmationService: EmailConfirmationService,
   ) {
     this.#userService = userService;
     this.#config = config;
     this.#providerService = providerService;
     this.#prismaService = prismaService;
+    this.#emailConfirmationService = emailConfirmationService;
   }
 
   public async register(request: Request, dto: RegisterDto) {
@@ -49,7 +54,12 @@ export class AuthService {
       false,
     );
 
-    return this.saveSession(request, newUser);
+    await this.#emailConfirmationService.sendVerificationToken(newUser);
+
+    return {
+      message:
+        "You have been registered successfully. Please, check your email to verify your account.",
+    };
   }
 
   public async login(request: Request, dto: LoginDto) {
@@ -64,6 +74,13 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException(
         "Invalid password. Please, try again or reset the password if you forgot it.",
+      );
+    }
+
+    if (!user.isEmailVerified) {
+      await this.#emailConfirmationService.sendVerificationToken(user);
+      throw new UnauthorizedException(
+        "Please, verify your email to login. If you did not receive the verification email, please request a new one.",
       );
     }
 
@@ -137,7 +154,7 @@ export class AuthService {
 
   public async refresh() { }
 
-  private async saveSession(request: Request, user: User) {
+  public async saveSession(request: Request, user: User) {
     return new Promise<User>((resolve, reject) => {
       request.session.userId = user.id;
 
