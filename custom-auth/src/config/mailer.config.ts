@@ -13,6 +13,6 @@ export const getMailerConfig = (config: ConfigService): MailerOptions => ({
     },
   },
   defaults: {
-    from: `"Custom Auth" <${config.getOrThrow<string>("MAIL_LOGIN")}>`,
+    from: `"Custom Auth" <${config.getOrThrow<string>("MAIL_FROM")}>`,
   },
 });
