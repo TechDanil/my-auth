@@ -29,7 +29,7 @@ export class EmailConfirmationService {
   ) {}
 
   public async sendVerificationToken(user: User) {
-    const verificationToken = await this.generateVerificationToken(user.email);
+    const verificationToken = await this.#generateVerificationToken(user.email);
 
     await this.mailService.sendConfirmationEmail(
       verificationToken.email,
@@ -90,7 +90,7 @@ export class EmailConfirmationService {
     return this.authService.saveSession(request, existingUser);
   }
 
-  private async generateVerificationToken(email: string) {
+  async #generateVerificationToken(email: string) {
     const token = randomUUID();
     const expiresIn = new Date(new Date().getTime() + 3600 * 1000);
 
@@ -105,6 +105,7 @@ export class EmailConfirmationService {
       await this.prismaService.token.delete({
         where: {
           id: isExistingToken.id,
+          type: TokenType.VERIFICATION,
         },
       });
     }
