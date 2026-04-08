@@ -20,27 +20,18 @@ import { User } from "@prisma/__generated__/client";
 
 @Injectable()
 export class EmailConfirmationService {
-  readonly #prismaService: PrismaService;
-  readonly #mailService: MailService;
-  readonly #userService: UserService;
-  readonly #authService: AuthService;
-
   constructor(
-    prismaService: PrismaService,
-    mailService: MailService,
-    userService: UserService,
-    @Inject(forwardRef(() => AuthService)) authService: AuthService,
-  ) {
-    this.#prismaService = prismaService;
-    this.#mailService = mailService;
-    this.#userService = userService;
-    this.#authService = authService;
-  }
+    private readonly prismaService: PrismaService,
+    private readonly mailService: MailService,
+    private readonly userService: UserService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
+  ) {}
 
   public async sendVerificationToken(user: User) {
-    const verificationToken = await this.#generateVerificationToken(user.email);
+    const verificationToken = await this.generateVerificationToken(user.email);
 
-    await this.#mailService.sendConfirmationEmail(
+    await this.mailService.sendConfirmationEmail(
       verificationToken.email,
       verificationToken.token,
     );
@@ -49,7 +40,7 @@ export class EmailConfirmationService {
   }
 
   public async newVerification(request: Request, dto: ConfirmationDto) {
-    const existingToken = await this.#prismaService.token.findUnique({
+    const existingToken = await this.prismaService.token.findUnique({
       where: {
         token: dto.token,
         type: TokenType.VERIFICATION,
@@ -70,7 +61,7 @@ export class EmailConfirmationService {
       );
     }
 
-    const existingUser = await this.#userService.findByEmail(
+    const existingUser = await this.userService.findByEmail(
       existingToken.email,
     );
 
@@ -80,7 +71,7 @@ export class EmailConfirmationService {
       );
     }
 
-    await this.#prismaService.user.update({
+    await this.prismaService.user.update({
       where: {
         id: existingUser.id,
       },
@@ -89,21 +80,21 @@ export class EmailConfirmationService {
       },
     });
 
-    await this.#prismaService.token.delete({
+    await this.prismaService.token.delete({
       where: {
         id: existingToken.id,
         type: TokenType.VERIFICATION,
       },
     });
 
-    return this.#authService.saveSession(request, existingUser);
+    return this.authService.saveSession(request, existingUser);
   }
 
-  async #generateVerificationToken(email: string) {
+  private async generateVerificationToken(email: string) {
     const token = randomUUID();
     const expiresIn = new Date(new Date().getTime() + 3600 * 1000);
 
-    const isExistingToken = await this.#prismaService.token.findFirst({
+    const isExistingToken = await this.prismaService.token.findFirst({
       where: {
         email,
         type: TokenType.VERIFICATION,
@@ -111,14 +102,14 @@ export class EmailConfirmationService {
     });
 
     if (isExistingToken) {
-      await this.#prismaService.token.delete({
+      await this.prismaService.token.delete({
         where: {
           id: isExistingToken.id,
         },
       });
     }
 
-    const verificationToken = await this.#prismaService.token.create({
+    const verificationToken = await this.prismaService.token.create({
       data: {
         email,
         token,
