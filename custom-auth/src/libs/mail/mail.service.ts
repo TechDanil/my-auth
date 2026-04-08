@@ -3,7 +3,7 @@ import { MailerService } from "@nestjs-modules/mailer";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import { ConfirmationTemplate } from "./templates/confirmation.template";
+import { ConfirmationTemplate, ResetPasswordTemplate } from "./templates";
 
 @Injectable()
 export class MailService {
@@ -19,7 +19,14 @@ export class MailService {
     const domain = this.#configService.getOrThrow<string>("ALLOWED_ORIGIN");
     const html = await render(ConfirmationTemplate({ domain, token }));
 
-    return this.#sendMail(email, "Email Confirmation", html);
+    return this.#sendMail(email, "Email confirmation", html);
+  }
+
+  public async sendResetPasswordEmail(email: string, token: string) {
+    const domain = this.#configService.getOrThrow<string>("ALLOWED_ORIGIN");
+    const html = await render(ResetPasswordTemplate({ domain, token }));
+
+    return this.#sendMail(email, "Reset password", html);
   }
 
   #sendMail(email: string, subject: string, html: string) {
