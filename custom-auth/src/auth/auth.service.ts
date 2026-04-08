@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -18,34 +20,23 @@ import { EmailConfirmationService } from "./email-confirmation/email-confirmatio
 
 @Injectable()
 export class AuthService {
-  readonly #userService: UserService;
-  readonly #config: ConfigService;
-  readonly #providerService: ProviderService;
-  readonly #prismaService: PrismaService;
-  readonly #emailConfirmationService: EmailConfirmationService;
-
   constructor(
-    userService: UserService,
-    config: ConfigService,
-    providerService: ProviderService,
-    prismaService: PrismaService,
-    emailConfirmationService: EmailConfirmationService,
-  ) {
-    this.#userService = userService;
-    this.#config = config;
-    this.#providerService = providerService;
-    this.#prismaService = prismaService;
-    this.#emailConfirmationService = emailConfirmationService;
-  }
+    private readonly userService: UserService,
+    private readonly config: ConfigService,
+    private readonly providerService: ProviderService,
+    private readonly prismaService: PrismaService,
+    @Inject(forwardRef(() => EmailConfirmationService))
+    private readonly emailConfirmationService: EmailConfirmationService,
+  ) {}
 
   public async register(request: Request, dto: RegisterDto) {
-    const hasUser = await this.#userService.findByEmail(dto.email);
+    const hasUser = await this.userService.findByEmail(dto.email);
 
     if (hasUser) {
       throw new ConflictException("User already exists");
     }
 
-    const newUser = await this.#userService.create(
+    const newUser = await this.userService.create(
       dto.email,
       dto.password,
       dto.name,
@@ -54,7 +45,7 @@ export class AuthService {
       false,
     );
 
-    await this.#emailConfirmationService.sendVerificationToken(newUser);
+    await this.emailConfirmationService.sendVerificationToken(newUser);
 
     return {
       message:
@@ -63,7 +54,7 @@ export class AuthService {
   }
 
   public async login(request: Request, dto: LoginDto) {
-    const user = await this.#userService.findByEmail(dto.email);
+    const user = await this.userService.findByEmail(dto.email);
 
     if (!user || !user.password) {
       throw new NotFoundException("User not found");
@@ -78,7 +69,7 @@ export class AuthService {
     }
 
     if (!user.isEmailVerified) {
-      await this.#emailConfirmationService.sendVerificationToken(user);
+      await this.emailConfirmationService.sendVerificationToken(user);
       throw new UnauthorizedException(
         "Please, verify your email to login. If you did not receive the verification email, please request a new one.",
       );
@@ -92,10 +83,10 @@ export class AuthService {
     provider: string,
     code: string,
   ) {
-    const providerInstance = this.#providerService.findByService(provider);
+    const providerInstance = this.providerService.findByService(provider);
     const profile = await providerInstance.findUserByCode(code);
 
-    const account = await this.#prismaService.account.findFirst({
+    const account = await this.prismaService.account.findFirst({
       where: {
         id: profile.id,
         provider: profile.provider,
@@ -103,14 +94,14 @@ export class AuthService {
     });
 
     let user = account?.userId
-      ? await this.#userService.findById(account.userId)
+      ? await this.userService.findById(account.userId)
       : null;
 
     if (user) {
       return this.saveSession(req, user);
     }
 
-    user = await this.#userService.create(
+    user = await this.userService.create(
       profile.email,
       "",
       profile.name ?? profile.email,
@@ -120,7 +111,7 @@ export class AuthService {
     );
 
     if (!account) {
-      await this.#prismaService.account.create({
+      await this.prismaService.account.create({
         data: {
           userId: profile.id,
           type: "oauth",
@@ -146,13 +137,13 @@ export class AuthService {
           );
         }
 
-        response.clearCookie(this.#config.getOrThrow("SESSION_NAME"));
+        response.clearCookie(this.config.getOrThrow("SESSION_NAME"));
         resolve();
       });
     });
   }
 
-  public async refresh() { }
+  public async refresh() {}
 
   public async saveSession(request: Request, user: User) {
     return new Promise<User>((resolve, reject) => {
