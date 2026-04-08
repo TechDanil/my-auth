@@ -5,8 +5,8 @@ import type { TypeUserInfo } from "./types/user-info.type";
 
 @Injectable()
 export abstract class BaseOauthService {
+  readonly #options: TypeBaseProviderOptions;
   #baseUrl: string;
-  #options: TypeBaseProviderOptions;
 
   constructor(options: TypeBaseProviderOptions) {
     this.#options = options;

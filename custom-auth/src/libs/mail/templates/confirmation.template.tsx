@@ -9,8 +9,8 @@ import {
 import { JSX } from "react";
 
 type Props = {
-  domain: string;
-  token: string;
+  readonly domain: string;
+  readonly token: string;
 };
 
 export const ConfirmationTemplate = ({ domain, token }: Props): JSX.Element => {
