@@ -3,7 +3,11 @@ import { MailerService } from "@nestjs-modules/mailer";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import { ConfirmationTemplate, ResetPasswordTemplate } from "./templates";
+import {
+  ConfirmationTemplate,
+  ResetPasswordTemplate,
+  TwoFactorAuthTemplate,
+} from "./templates";
 
 @Injectable()
 export class MailService {
@@ -27,6 +31,12 @@ export class MailService {
     const html = await render(ResetPasswordTemplate({ domain, token }));
 
     return this.#sendMail(email, "Reset password", html);
+  }
+
+  public async sendTwoFactorTokenEmail(email: string, token: string) {
+    const html = await render(TwoFactorAuthTemplate({ token }));
+
+    return this.#sendMail(email, "Two factor authentication", html);
   }
 
   #sendMail(email: string, subject: string, html: string) {
