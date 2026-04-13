@@ -16,7 +16,6 @@ import { UserService } from "@/user/user.service";
 import { AuthService } from "@/auth/auth.service";
 
 import { ConfirmationDto } from "./dto/confirmation.dto";
-import { User } from "@prisma/__generated__/client";
 
 @Injectable()
 export class EmailConfirmationService {
@@ -28,8 +27,8 @@ export class EmailConfirmationService {
     private readonly authService: AuthService,
   ) {}
 
-  public async sendVerificationToken(user: User) {
-    const verificationToken = await this.#generateVerificationToken(user.email);
+  public async sendVerificationToken(email: string) {
+    const verificationToken = await this.generateVerificationToken(email);
 
     await this.mailService.sendConfirmationEmail(
       verificationToken.email,
@@ -90,7 +89,7 @@ export class EmailConfirmationService {
     return this.authService.saveSession(request, existingUser);
   }
 
-  async #generateVerificationToken(email: string) {
+  private async generateVerificationToken(email: string) {
     const token = randomUUID();
     const expiresIn = new Date(new Date().getTime() + 3600 * 1000);
 
