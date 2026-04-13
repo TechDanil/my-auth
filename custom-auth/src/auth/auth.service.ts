@@ -17,6 +17,7 @@ import { PrismaService } from "@/prisma/prisma.service";
 
 import { LoginDto, RegisterDto } from "./dto";
 import { EmailConfirmationService } from "./email-confirmation/email-confirmation.service";
+import { TwoFactorAuthService } from "./two-factor-auth/two-factor-auth.service";
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,8 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     @Inject(forwardRef(() => EmailConfirmationService))
     private readonly emailConfirmationService: EmailConfirmationService,
-  ) {}
+    private readonly twoFactorAuthService: TwoFactorAuthService,
+  ) { }
 
   public async register(request: Request, dto: RegisterDto) {
     const hasUser = await this.userService.findByEmail(dto.email);
@@ -45,7 +47,7 @@ export class AuthService {
       false,
     );
 
-    await this.emailConfirmationService.sendVerificationToken(newUser);
+    await this.emailConfirmationService.sendVerificationToken(newUser.email);
 
     return {
       message:
@@ -69,9 +71,26 @@ export class AuthService {
     }
 
     if (!user.isEmailVerified) {
-      await this.emailConfirmationService.sendVerificationToken(user);
+      await this.emailConfirmationService.sendVerificationToken(user.email);
+
       throw new UnauthorizedException(
         "Please, verify your email to login. If you did not receive the verification email, please request a new one.",
+      );
+    }
+
+    if (user.isTwoFactorEnabled) {
+      if (!dto.code) {
+        await this.twoFactorAuthService.sendTwoFactorToken(user.email);
+
+        return {
+          message:
+            "Two factor authentication is enabled. Please, enter the code sent to your email.",
+        };
+      }
+
+      await this.twoFactorAuthService.validateTwoFactorToken(
+        user.email,
+        dto.code,
       );
     }
 
@@ -143,7 +162,7 @@ export class AuthService {
     });
   }
 
-  public async refresh() {}
+  public async refresh() { }
 
   public async saveSession(request: Request, user: User) {
     return new Promise<User>((resolve, reject) => {
