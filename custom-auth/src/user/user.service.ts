@@ -1,8 +1,10 @@
-import { AuthMethod } from "./../../prisma/__generated__/enums";
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { hash } from "argon2";
+
+import { AuthMethod } from "./../../prisma/__generated__/enums";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable()
 export class UserService {
@@ -61,5 +63,20 @@ export class UserService {
     });
 
     return user;
+  }
+
+  public async update(id: string, dto: UpdateUserDto) {
+    const user = await this.findById(id);
+
+    const updatedUser = await this.#prisma.user.update({
+      where: { id: user.id },
+      data: {
+        displayName: dto.name,
+        email: dto.email,
+        isTwoFactorEnabled: dto.isTwoFactorEnabled,
+      },
+    });
+
+    return updatedUser;
   }
 }

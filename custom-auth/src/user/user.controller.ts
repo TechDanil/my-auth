@@ -1,8 +1,18 @@
-import { Controller, Get, HttpCode, HttpStatus, Param } from "@nestjs/common";
-import { UserService } from "./user.service";
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Body,
+} from "@nestjs/common";
 import { Authorized } from "@/auth/decorators/authorized.decorator";
 import { Authorization } from "@/auth/decorators/auth.decorator";
 import { Role } from "@prisma/__generated__/enums";
+
+import { UserService } from "./user.service";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Controller("user")
 export class UserController {
@@ -24,5 +34,15 @@ export class UserController {
   @Get("by-id/:id")
   public async findById(@Param("id") userId: string) {
     return this.#userService.findById(userId);
+  }
+
+  @Authorization()
+  @HttpCode(HttpStatus.OK)
+  @Patch("profile")
+  public async updateProfile(
+    @Authorized("id") userId: string,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.#userService.update(userId, dto);
   }
 }
