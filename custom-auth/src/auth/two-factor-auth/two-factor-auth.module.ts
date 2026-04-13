@@ -1,9 +1,8 @@
 import { Module } from "@nestjs/common";
 import { TwoFactorAuthService } from "./two-factor-auth.service";
-import { TwoFactorAuthController } from "./two-factor-auth.controller";
+import { MailService } from "@/libs/mail/mail.service";
 
 @Module({
-  controllers: [TwoFactorAuthController],
-  providers: [TwoFactorAuthService],
+  providers: [TwoFactorAuthService, MailService],
 })
 export class TwoFactorAuthModule { }
