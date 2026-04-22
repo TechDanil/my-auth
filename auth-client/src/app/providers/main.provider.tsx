@@ -1,16 +1,15 @@
-import { FunctionComponent, PropsWithChildren } from "react"
-
 import { TanstackQueryProvider } from "./tanstack-query.provider"
 import { ThemeProvider } from "./theme.provider"
+import { composeProviders } from "./compose.provider"
 
-export const MainProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const { children } = props
-
-  return (
-    <TanstackQueryProvider>
-      <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
-        {children}
-      </ThemeProvider>
-    </TanstackQueryProvider>
-  )
-} 
+export const MainProvider = composeProviders([
+  { component: TanstackQueryProvider },
+  {
+    component: ThemeProvider,
+    props: {
+      attribute: "class",
+      defaultTheme: "light",
+      disableTransitionOnChange: true,
+    },
+  },
+])
