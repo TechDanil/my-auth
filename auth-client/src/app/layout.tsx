@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/shared/utils/clsx";
 
 import  '@/shared/styles/globals.css';
+import { ToggleTheme } from "@/shared/components/ui";
 
 import { MainProvider } from "./providers";
 
@@ -34,7 +35,14 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-mono", jetbrainsMono.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <MainProvider>{children}</MainProvider>
+        <MainProvider>
+          <div className="relative flex min-h-screen flex-col">
+            <ToggleTheme />
+            <div className="flex h-screen w-full items-center justify-center px-4">
+              {children}
+            </div>
+          </div>
+        </MainProvider>
       </body>
     </html>
   );
