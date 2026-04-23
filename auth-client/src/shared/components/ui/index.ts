@@ -1,3 +1,4 @@
 export { Button, buttonVariants } from "./button"
 export { ToggleTheme } from "./toggle-theme"
-export * from "./dropdown-menu"
+export { DropdownMenu } from "./dropdown-menu"
+export * from './card'
