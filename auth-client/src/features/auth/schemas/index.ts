@@ -1,1 +1,1 @@
-import { RegisterSchema, ZodRegisterSchema } from './register.schema'; 
+export { RegisterSchema, type TypeRegisterSchema } from './register.schema'
