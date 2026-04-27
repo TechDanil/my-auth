@@ -1,13 +1,11 @@
 import { Metadata } from 'next'
 
+import { LoginForm } from '@/features/auth/components'
+
 export const metadata: Metadata = {
-    title: 'Создать аккаунт'
+  title: 'Войти в аккаунт'
 }
 
 export default function LoginPage() {
-    return (
-        <>
-            <h1>Register</h1>
-        </>
-    )
+  return <LoginForm />
 }
