@@ -2,19 +2,28 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react'
+import { useTheme } from 'next-themes'
 import { useState } from 'react'
+import ReCAPTCHA from 'react-google-recaptcha'
 import { useForm } from 'react-hook-form'
 
 import { Button, Input, Label } from '@/shared/components/ui'
 
+import { usePassword } from '../../hooks/use-password'
 import { RegisterSchema, TypeRegisterSchema } from '../../schemas'
 
 import { AuthWrapper } from '@/widgets'
 
 export function RegisterForm() {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
-  const [isPasswordRepeatVisible, setIsPasswordRepeatVisible] =
-    useState(false)
+  const {
+    isPasswordRepeatVisible,
+    isPasswordVisible,
+    onPasswordVisible,
+    onRepeatPasswordVisible
+  } = usePassword()
+
+  const { theme } = useTheme()
+  const [recaptcha, setRecaptcha] = useState<string | null>(null)
 
   const form = useForm<TypeRegisterSchema>({
     resolver: zodResolver(RegisterSchema as never),
@@ -27,7 +36,11 @@ export function RegisterForm() {
   })
 
   const handleSubmit = (values: TypeRegisterSchema) => {
-    console.log(values)
+    if (recaptcha) {
+      console.log(values)
+    } else {
+      console.log('recaptcha error')
+    }
   }
 
   return (
@@ -38,10 +51,7 @@ export function RegisterForm() {
       backButtonHref='/auth/login'
       isSocialShown
     >
-      <form
-        className='space-y-2'
-        onSubmit={form.handleSubmit(handleSubmit)}
-      >
+      <form className='space-y-2' onSubmit={form.handleSubmit(handleSubmit)}>
         <div className='space-y-1.5'>
           <Label htmlFor='name'>Имя</Label>
           <Input
@@ -89,11 +99,9 @@ export function RegisterForm() {
               variant='ghost'
               size='icon-xs'
               className='absolute top-1/2 right-1 -translate-y-1/2'
-              onClick={() => setIsPasswordVisible(prev => !prev)}
+              onClick={onPasswordVisible}
               aria-label={
-                isPasswordVisible
-                  ? 'Скрыть пароль'
-                  : 'Показать пароль'
+                isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль'
               }
             >
               {isPasswordVisible ? <EyeSlashIcon /> : <EyeIcon />}
@@ -115,29 +123,19 @@ export function RegisterForm() {
               placeholder='Повторите пароль'
               className='pr-8'
               {...form.register('passwordRepeat')}
-              aria-invalid={
-                !!form.formState.errors.passwordRepeat
-              }
+              aria-invalid={!!form.formState.errors.passwordRepeat}
             />
             <Button
               type='button'
               variant='ghost'
               size='icon-xs'
               className='absolute top-1/2 right-1 -translate-y-1/2'
-              onClick={() =>
-                setIsPasswordRepeatVisible(prev => !prev)
-              }
+              onClick={onRepeatPasswordVisible}
               aria-label={
-                isPasswordRepeatVisible
-                  ? 'Скрыть пароль'
-                  : 'Показать пароль'
+                isPasswordRepeatVisible ? 'Скрыть пароль' : 'Показать пароль'
               }
             >
-              {isPasswordRepeatVisible ? (
-                <EyeSlashIcon />
-              ) : (
-                <EyeIcon />
-              )}
+              {isPasswordRepeatVisible ? <EyeSlashIcon /> : <EyeIcon />}
             </Button>
           </div>
           {form.formState.errors.passwordRepeat && (
@@ -145,6 +143,14 @@ export function RegisterForm() {
               {form.formState.errors.passwordRepeat.message}
             </p>
           )}
+        </div>
+
+        <div className='flex justify-center'>
+          <ReCAPTCHA
+            sitekey={process.env.GOOGLE_RECAPTCHA_SECRET_KEY as string}
+            onChange={setRecaptcha}
+            theme={theme === 'light' ? 'light' : 'dark'}
+          />
         </div>
 
         <Button
