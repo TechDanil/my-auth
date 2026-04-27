@@ -20,9 +20,7 @@ export function AuthSocial() {
           <span className='w-full border-t' />
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-background text-muted-foreground px-2'>
-            Или
-          </span>
+          <span className='bg-background text-muted-foreground px-2'>Или</span>
         </div>
       </div>
     </>

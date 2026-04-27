@@ -33,9 +33,7 @@ export function AuthWrapper({
     <Card className='w-full max-w-md'>
       <CardHeader className='space-y-2'>
         <CardTitle>{heading}</CardTitle>
-        {description && (
-          <CardDescription>{description}</CardDescription>
-        )}
+        {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent className='space-y-4'>
         {isSocialShown && <AuthSocial />}
@@ -43,11 +41,7 @@ export function AuthWrapper({
       </CardContent>
       {backButtonLabel && backButtonHref && (
         <CardFooter>
-          <Button
-            variant='link'
-            className='w-full font-normal'
-            asChild
-          >
+          <Button variant='link' className='w-full font-normal' asChild>
             <Link href={backButtonHref}>{backButtonLabel}</Link>
           </Button>
         </CardFooter>
